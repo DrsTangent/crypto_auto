@@ -49,17 +49,37 @@ class BinanceClient{
 
         return orderDetails;
     }
-
+    getEachCoinAmount(numOfCoins){
+        return (this.availableBalance - this.availableBalance*0.1)/numOfCoins;
+    }
     async startTrading(){
         //Changing Leverage Type and Making Trading Isolated
         for(let i = 0; i<this.coins.length; i++){
             await this.connector.changeLeverage(this.coins[i].coinName, this.leverage).catch(e=>{});
             await this.connector.changeMarginType(this.coins[i].coinName, "ISOLATED").catch(e=>{});
         }
-        //
-        let amount = (this.availableBalance - this.availableBalance*0.05)/this.coins.length;
-        for(let i = 0; i<this.coins.length; i++){
-            let strategy = new SuperTrendStrategy(this, this.coins[i], amount, this.timeFrame, this.leverage, this.tradingDirection, this.stopLossPercentage, this.trailingStopPercentage, this.diffPercentage)
+        //Choosing Coins//
+        let coinsToInvestOn = [...this.coins]
+        coinsToInvestOn.sort((coinA, coinB)=>{
+            return coinB.coinPrice*coinB.minQty - coinA.coinPrice*coinA.minQty ;
+        })
+
+        let amount = this.getEachCoinAmount(coinsToInvestOn.length);
+        for(let i = 0;i< coinsToInvestOn.length; i++){
+            let minRequiredAmount = coinsToInvestOn[i].coinPrice * coinsToInvestOn[i].minQty;
+            if(minRequiredAmount>amount*this.leverage){
+                let coin = coinsToInvestOn.shift();
+                console.log(`***Coin Removed Due to Insufficient Amount***\nCoin: ${coin.coinName}\nRequired Amount: ${minRequiredAmount/this.leverage}\nAssigned Amount: ${amount}`)
+                i--;
+                amount =  this.getEachCoinAmount(coinsToInvestOn.length);
+            }
+            else{
+                break;
+            }
+        }
+
+        for(let i = 0; i<coinsToInvestOn.length; i++){
+            let strategy = new SuperTrendStrategy(this, coinsToInvestOn[i], amount, this.timeFrame, this.leverage, this.tradingDirection, this.stopLossPercentage, this.trailingStopPercentage, this.diffPercentage)
             this.strategies.push(strategy);
             strategy.start();
         }

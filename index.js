@@ -49,7 +49,7 @@ function displayMenu() {
                 type: 'checkbox',
                 name: 'coins',
                 message: 'Select Coins:',
-                choices: ['ltcusdt', 'xrpusdt', 'seiusdt', 'suiusdt', 'uniusdt']
+                choices: ['xrpusdt', 'ltcusdt', 'seiusdt', 'suiusdt', 'uniusdt']
             }
         ])
         .then(async (answers) => {
@@ -107,7 +107,7 @@ function displayMenu() {
             //Wait 10-15 Saconds//
             setTimeout(()=>{
                 bc.startTrading()
-            }, 10000)
+            }, 30000)
         });
 }
 
