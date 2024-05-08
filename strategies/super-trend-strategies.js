@@ -60,9 +60,13 @@ class SuperTrendStrategy{
             this.amount = this.amount + orderDetails.profit;
             this.boughtCoins = orderDetails.qty;
             this.tradeDirection = direction;
-            this.stopLoss = new StopLoss(orderDetails, this.leverage, direction, this.stopLossPercentage);
-            this.trailingStop = new TrailingStop(orderDetails, this.leverage, direction, this.trailingStartPercentage, this.diffPercentage);
+            this.stopLoss = new StopLoss(parseFloat(orderDetails['price']), this.leverage, direction, this.stopLossPercentage);
+            this.trailingStop = new TrailingStop(parseFloat(orderDetails['price']), this.leverage, direction, this.trailingStartPercentage, this.diffPercentage);
             this.lockTrade = false;
+
+            console.log(this.stopLoss);
+            console.log(this.trailingStop);
+
         }).catch((e)=>{
             console.log('Error Occurred While Opening Trade');
             console.log(e);
@@ -93,6 +97,8 @@ class SuperTrendStrategy{
     }
 
     updateCoinPrice(coinPrice){
+        if(this.lockTrade)
+            return;
         if(this.stopLoss != null){
             let decision = this.stopLoss.updateCoinPrice(coinPrice);
             if(decision == "take"){

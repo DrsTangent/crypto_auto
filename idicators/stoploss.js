@@ -15,6 +15,7 @@ class StopLoss{
 
         return multiplier
     }
+    
     updateCoinPrice(coinPrice){
         let  decision;
         if(this.direction == "long"){
