@@ -3,6 +3,7 @@ class SuperTrendIndicator{
         this.candles = candles.slice(Math.max(candles.length - (atrNum + 1), 1)) // Getting Last Values
         this.atrNum = atrNum
         this.multiplier = multiplier
+        this.prevAtr = null;
         this.atr = null
         this.prevUpperBand = null
         this.prevLowerBand = null
@@ -23,14 +24,17 @@ class SuperTrendIndicator{
         }
         else{
             this.prevTrendDirection = this.trendDirection;
+            this.prevAtr = this.atr; // new line
             removingTrueRange = this.candles[1].getTrueRange(this.candles[0]);
             this.candles.shift()
             this.candles.push(candle);
         }
+        
         let trueRangeToBeAdded = this.candles[this.candles.length - 1].getTrueRange(this.candles[this.candles.length - 2])
-        let prevTotalSum = this.atr * this.atrNum;
-        let newTotalSum = prevTotalSum - removingTrueRange + trueRangeToBeAdded;
-        this.atr = newTotalSum/this.atrNum;
+        //let prevTotalSum = this.atr * this.atrNum;
+        //let newTotalSum = prevTotalSum - removingTrueRange + trueRangeToBeAdded;
+        //this.atr = newTotalSum/this.atrNum;
+        this.atr = (this.prevAtr*(this.atrNum - 1) + trueRangeToBeAdded)/ this.atrNum
         let hl2 = (candle.high + candle.low) / 2
         let basicUpperBand = hl2 + (this.multiplier * this.atr)    
         let basicLowerBand = hl2 - (this.multiplier * this.atr)
@@ -61,6 +65,7 @@ class SuperTrendIndicator{
             trueRangeSum+= this.candles[i].getTrueRange(this.candles[i-1]);
         }
         this.atr = trueRangeSum/(this.candles.length - 1);
+        this.prevAtr = trueRangeSum/(this.candles.length - 1);
     }
 }
 
