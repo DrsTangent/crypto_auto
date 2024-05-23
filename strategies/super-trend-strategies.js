@@ -31,11 +31,12 @@ class SuperTrendStrategy{
     }
 
     async start(){
-        let res = await axios.get(`https://data-api.binance.vision/api/v3/klines?symbol=${this.coin.coinName.toUpperCase()}&interval=${this.timeFrame}`)
+        let res = await axios.get(`https://fapi.binance.com/fapi/v1/klines?symbol=${this.coin.coinName.toUpperCase()}&interval=${this.timeFrame}&limit=1500`)
         let data = await res.data;
         let candles = data.map((arr)=>{
             let candle  = new Candle(this.coin.coinName, parseFloat(arr[1]), parseFloat(arr[3]),
                 parseFloat(arr[2]),parseFloat(arr[4]),arr[0],arr[6])
+            
             return candle;
         })
         let firstRows = candles.slice(0, 11);

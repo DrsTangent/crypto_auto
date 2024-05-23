@@ -1,10 +1,9 @@
-const { WebsocketStream } = require('@binance/connector')
+const { WebsocketStream } = require('@binance/futures-connector')
 const { Console } = require('console');
 const { Candle } = require('../idicators/candles');
 const { default: axios } = require('axios');
 const logger = new Console({ stdout: process.stdout, stderr: process.stderr })
-
-
+const FuturesWebSocketStream = require('./futuresWebSocketStream')
 class Market{
     constructor(timeFrame){
         if(Market.instance !=  undefined){
@@ -18,6 +17,7 @@ class Market{
             close: () => logger.debug('Market has disconnected from Websocket Server'),
             message: (data) => {
                 let jsonData = JSON.parse(data);
+                console.log(data);
                 Market.coins.forEach(coin => {
                     if(coin.coinName.toLowerCase() == jsonData['s'].toLowerCase()){
                         coin.updateCoinPrice(parseFloat(jsonData['k']['c']))
@@ -30,7 +30,7 @@ class Market{
             }
         }
         this.timeFrame = timeFrame;
-        this.websocketStreamClient = new WebsocketStream({ logger, callbacks })
+        this.websocketStreamClient = new FuturesWebSocketStream({logger, callbacks })
         Market.instance = this;
     }
 
@@ -46,6 +46,8 @@ class Market{
         let symbol = symbols.find((element)=>{
             return element['symbol'].toLowerCase() == coinName.toLowerCase()
         })
+        console.log(symbols);
+        console.log(symbol);
         let coin = new Coin(coinName, symbol['quantityPrecision'], minQty)
         this.websocketStreamClient.subscribe(`${coinName}@kline_${this.timeFrame}`)
         Market.coins.push(coin);
