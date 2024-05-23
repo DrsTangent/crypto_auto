@@ -17,7 +17,6 @@ class Market{
             close: () => logger.debug('Market has disconnected from Websocket Server'),
             message: (data) => {
                 let jsonData = JSON.parse(data);
-                console.log(data);
                 Market.coins.forEach(coin => {
                     if(coin.coinName.toLowerCase() == jsonData['s'].toLowerCase()){
                         coin.updateCoinPrice(parseFloat(jsonData['k']['c']))
@@ -46,8 +45,6 @@ class Market{
         let symbol = symbols.find((element)=>{
             return element['symbol'].toLowerCase() == coinName.toLowerCase()
         })
-        console.log(symbols);
-        console.log(symbol);
         let coin = new Coin(coinName, symbol['quantityPrecision'], minQty)
         this.websocketStreamClient.subscribe(`${coinName}@kline_${this.timeFrame}`)
         Market.coins.push(coin);
